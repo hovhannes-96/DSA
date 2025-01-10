@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <queue>
 
 struct Node {
     int val;
@@ -125,17 +126,39 @@ public:
         }
     }
 
-    void mirror() {
-        _mirror(root_);
+    void mirror_recursive() {
+        _mirror_recursive(root_);
     }
 
-    void _mirror(Node* node) {
+    void _mirror_recursive(Node* node) {
         if (!node) {
             return;
         }
-        _mirror(node->left);
-        _mirror(node->right);
+        _mirror_recursive(node->left);
+        _mirror_recursive(node->right);
         std::swap(node->left, node->right);
+    }
+
+    void mirror_iterative() {
+      _mirror_iterative(root_);
+    }
+    void _mirror_iterative(Node* node) {
+      if (!node) {
+        return;
+      }
+      std::queue<Node*> q;
+      q.push(node);
+      while (!q.empty()) {
+          Node* curr = q.front();
+          std::swap(curr->left, curr->right);
+          q.pop();
+          if (curr->left) {
+              q.push(curr->left);
+          }
+          if (curr->right) {
+              q.push(curr->right);
+          }
+      }
     }
     ~BinarySearchTree() {
         clean(root_);
@@ -183,7 +206,9 @@ int main() {
     tree.insert(4);
     tree.print();
 
-    tree.mirror();
+    tree.mirror_recursive();
+    tree.print();
+    tree.mirror_iterative();
     tree.print();
 
     // tree.erase(tree.search(6));
