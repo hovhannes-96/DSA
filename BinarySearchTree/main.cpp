@@ -125,12 +125,27 @@ public:
         }
     }
 
+    void mirror() {
+        _mirror(root_);
+    }
+
+    void _mirror(Node* node) {
+        if (!node) {
+            return;
+        }
+        _mirror(node->left);
+        _mirror(node->right);
+        std::swap(node->left, node->right);
+    }
     ~BinarySearchTree() {
+        clean(root_);
+    }
+    void clean(Node* node) {
         if (!root_) {
             return;
         }
-        traversal(root_->left);
-        traversal(root_->right);
+        clean(root_->left);
+        clean(root_->right);
         delete root_;
     }
     void traversal(Node* root) {
@@ -144,9 +159,6 @@ public:
     void print() {
         traversal(root_);
         std::cout << std::endl;
-    }
-    [[nodiscard]] Node* get_root() const {
-        return root_;
     }
 };
 
@@ -169,11 +181,15 @@ int main() {
     tree.insert(6);
     tree.insert(1);
     tree.insert(4);
+    tree.print();
+
+    tree.mirror();
+    tree.print();
 
     // tree.erase(tree.search(6));
-    tree.erase(tree.search(5));
     // tree.erase(tree.search(5));
-    tree.print();
+    // tree.erase(tree.search(5));
+    // tree.print();
 
     // std::cout << tree.search(5) << std::endl;
     // std::cout << tree.search(50) << std::endl;
