@@ -4,49 +4,55 @@
 
 struct Node {
     int val;
-    Node* left;
-    Node* right;
-    Node* parent;
-    explicit Node(int v) : val(v), left(nullptr), right(nullptr), parent(nullptr) {}
+    Node *left;
+    Node *right;
+    Node *parent;
+
+    explicit Node(int v) : val(v), left(nullptr), right(nullptr), parent(nullptr) {
+    }
 };
 
 class BinarySearchTree {
 private:
-    Node* root_;
+    Node *root_;
+
 public:
-    explicit BinarySearchTree(Node* root) : root_(root) {}
-    void insert(int val) {
+    explicit BinarySearchTree(Node *root) : root_(root) {
+    }
+
+    bool insert(const int val) {
         if (!root_) {
             root_ = new Node(val);
-            return;
+            return true;
         }
-        Node* curr = root_;
+        Node *curr = root_;
         while (curr) {
             if (val == curr->val) {
-                return;
+                return false;
             }
             if (val < curr->val) {
                 if (!curr->left) {
                     curr->left = new Node(val);
                     curr->left->parent = curr;
-                    return;
+                    return true;
                 }
                 curr = curr->left;
             } else {
                 if (!curr->right) {
                     curr->right = new Node(val);
                     curr->right->parent = curr;
-                    return;
+                    return true;
                 }
                 curr = curr->right;
             }
         }
     }
-    [[nodiscard]] Node* search(int val) const {
+
+    [[nodiscard]] Node *search(const int val) const {
         if (!root_) {
             return nullptr;
         }
-        Node* curr = root_;
+        Node *curr = root_;
         while (curr) {
             if (val == curr->val) {
                 return curr;
@@ -59,7 +65,8 @@ public:
         }
         return nullptr;
     }
-    [[nodiscard]] Node* min() const {
+
+    [[nodiscard]] Node *min() const {
         if (!root_) {
             return nullptr;
         }
@@ -69,7 +76,8 @@ public:
         }
         return curr;
     }
-    [[nodiscard]] Node* max() const {
+
+    [[nodiscard]] Node *max() const {
         if (!root_) {
             return nullptr;
         }
@@ -80,7 +88,7 @@ public:
         return curr;
     }
 
-    void erase(Node* node) {
+    void erase(Node *node) {
         if (!node) {
             return;
         }
@@ -117,7 +125,7 @@ public:
             }
             delete node;
         } else {
-            Node* curr = node->left;
+            Node *curr = node->left;
             while (curr->right) {
                 curr = curr->right;
             }
@@ -127,51 +135,55 @@ public:
     }
 
     void mirror_recursive() {
-        _mirror_recursive(root_);
+        mirror_recursive_helper(root_);
     }
 
-    void _mirror_recursive(Node* node) {
+    void mirror_recursive_helper(Node *node) {
         if (!node) {
             return;
         }
-        _mirror_recursive(node->left);
-        _mirror_recursive(node->right);
+        mirror_recursive_helper(node->left);
+        mirror_recursive_helper(node->right);
         std::swap(node->left, node->right);
     }
 
     void mirror_iterative() {
-      _mirror_iterative(root_);
+        mirror_iterative_helper(root_);
     }
-    void _mirror_iterative(Node* node) {
-      if (!node) {
-        return;
-      }
-      std::queue<Node*> q;
-      q.push(node);
-      while (!q.empty()) {
-          Node* curr = q.front();
-          std::swap(curr->left, curr->right);
-          q.pop();
-          if (curr->left) {
-              q.push(curr->left);
-          }
-          if (curr->right) {
-              q.push(curr->right);
-          }
-      }
+
+    static void mirror_iterative_helper(Node *node) {
+        if (!node) {
+            return;
+        }
+        std::queue<Node *> q;
+        q.push(node);
+        while (!q.empty()) {
+            Node *curr = q.front();
+            std::swap(curr->left, curr->right);
+            q.pop();
+            if (curr->left) {
+                q.push(curr->left);
+            }
+            if (curr->right) {
+                q.push(curr->right);
+            }
+        }
     }
+
     ~BinarySearchTree() {
         clean(root_);
     }
-    void clean(Node* node) {
-        if (!root_) {
+
+    static void clean(const Node *node) {
+        if (!node) {
             return;
         }
-        clean(root_->left);
-        clean(root_->right);
-        delete root_;
+        clean(node->left);
+        clean(node->right);
+        delete node;
     }
-    void traversal(Node* root) {
+
+    void traversal(const Node *root) {
         if (!root) {
             return;
         }
@@ -179,13 +191,14 @@ public:
         std::cout << root->val << " ";
         traversal(root->right);
     }
+
     void print() {
         traversal(root_);
         std::cout << std::endl;
     }
 };
 
-bool is_BST(Node* root, int min, int max) {
+bool is_BST(Node *root, int min, int max) {
     if (!root) {
         return true;
     }
