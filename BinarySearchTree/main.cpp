@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits>
 #include <queue>
+#include <stack>
 
 struct Node {
     int val;
@@ -14,18 +15,18 @@ struct Node {
 
 class BinarySearchTree {
 private:
-    Node *root_;
+    Node *_root;
 
 public:
-    explicit BinarySearchTree(Node *root) : root_(root) {
+    explicit BinarySearchTree(Node *root) : _root(root) {
     }
 
     bool insert(const int val) {
-        if (!root_) {
-            root_ = new Node(val);
+        if (!_root) {
+            _root = new Node(val);
             return true;
         }
-        Node *curr = root_;
+        Node *curr = _root;
         while (curr) {
             if (val == curr->val) {
                 return false;
@@ -49,10 +50,10 @@ public:
     }
 
     [[nodiscard]] Node *search(const int val) const {
-        if (!root_) {
+        if (!_root) {
             return nullptr;
         }
-        Node *curr = root_;
+        Node *curr = _root;
         while (curr) {
             if (val == curr->val) {
                 return curr;
@@ -67,10 +68,10 @@ public:
     }
 
     [[nodiscard]] Node *min() const {
-        if (!root_) {
+        if (!_root) {
             return nullptr;
         }
-        auto curr = root_;
+        auto curr = _root;
         while (curr->left) {
             curr = curr->left;
         }
@@ -78,10 +79,10 @@ public:
     }
 
     [[nodiscard]] Node *max() const {
-        if (!root_) {
+        if (!_root) {
             return nullptr;
         }
-        auto curr = root_;
+        auto curr = _root;
         while (curr->right) {
             curr = curr->right;
         }
@@ -110,7 +111,7 @@ public:
                     node->parent->right = node->left;
                 }
             } else {
-                root_ = node->left;
+                _root = node->left;
             }
             delete node;
         } else if (!node->left && node->right) {
@@ -121,7 +122,7 @@ public:
                     node->parent->right = node->right;
                 }
             } else {
-                root_ = node->right;
+                _root = node->right;
             }
             delete node;
         } else {
@@ -135,7 +136,7 @@ public:
     }
 
     void mirror_recursive() {
-        mirror_recursive_helper(root_);
+        mirror_recursive_helper(_root);
     }
 
     void mirror_recursive_helper(Node *node) {
@@ -148,7 +149,7 @@ public:
     }
 
     void mirror_iterative() {
-        mirror_iterative_helper(root_);
+        mirror_iterative_helper(_root);
     }
 
     static void mirror_iterative_helper(Node *node) {
@@ -171,7 +172,7 @@ public:
     }
 
     ~BinarySearchTree() {
-        clean(root_);
+        clean(_root);
     }
 
     static void clean(const Node *node) {
@@ -193,8 +194,50 @@ public:
     }
 
     void print() {
-        traversal(root_);
+        traversal(_root);
         std::cout << std::endl;
+    }
+
+    void printBFS() {
+        if (!_root) return;
+        Node* curr = _root;
+        std::queue<Node*> q;
+        q.push(curr);
+        while (!q.empty()) {
+            curr = q.front();
+            q.pop();
+            std::cout << curr->val << " ";
+        }
+    }
+
+    [[nodiscard]] Node *predecessor(Node *node) const {
+        if (!node) {
+            return nullptr;
+        }
+        if (node->left) {
+            node = node->left;
+            while (node->right) {
+                node = node->right;
+            }
+            return node;
+        }
+
+        if (!node->parent) {
+            return nullptr;
+        }
+
+        if (node == node->parent->right) {
+            return node->parent;
+        }
+
+        while ( node->parent && node == node->parent->left) {
+            node = node->parent;
+        }
+        if (node->parent) {
+            return node->parent;
+        }
+
+        return nullptr;
     }
 };
 
@@ -208,21 +251,44 @@ bool is_BST(Node *root, int min, int max) {
     return is_BST(root->left, min, root->val) && is_BST(root->right, root->val, max);
 }
 
+void batchConstructionByInserts(BinarySearchTree& tree, const std::vector<int>& values, int start, int end) {
+    if (start > end) {
+        return;
+    }
+    int mid = start + (end - start) / 2;
+    tree.insert(values[mid]);
+    batchConstructionByInserts(tree, values, start, mid - 1);
+    batchConstructionByInserts(tree, values, mid + 1, end);
+}
+
+
 int main() {
     BinarySearchTree tree(nullptr);
-    tree.insert(5);
-    tree.insert(7);
-    tree.insert(3);
-    tree.insert(9);
-    tree.insert(6);
-    tree.insert(1);
-    tree.insert(4);
+    std::vector<int> v = {1, 2, 3, 4, 5, 50};
+    batchConstructionByInserts(tree, v, 0, v.size() - 1);
     tree.print();
 
-    tree.mirror_recursive();
-    tree.print();
-    tree.mirror_iterative();
-    tree.print();
+    // tree.insert(5);
+    // tree.insert(7);
+    // tree.insert(3);
+    // tree.insert(9);
+    // tree.insert(6);
+    // tree.insert(1);
+    // tree.insert(4);
+    // tree.print();
+    // Node* x = tree.predecessor(tree.search(3));
+    // if (x) {
+    //     std::cout << x->val;
+    // } else {
+    //     std::cout << "null";
+    // }
+
+
+
+    // tree.mirror_recursive();
+    // tree.print();
+    // tree.mirror_iterative();
+    // tree.print();
 
     // tree.erase(tree.search(6));
     // tree.erase(tree.search(5));
