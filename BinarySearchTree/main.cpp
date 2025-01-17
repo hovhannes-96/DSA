@@ -184,30 +184,28 @@ public:
         delete node;
     }
 
-    void traversal(const Node *root) {
-        if (!root) {
-            return;
-        }
-        traversal(root->left);
-        std::cout << root->val << " ";
-        traversal(root->right);
-    }
-
-    void print() {
-        traversal(_root);
-        std::cout << std::endl;
-    }
-
-    void printBFS() {
-        if (!_root) return;
-        Node* curr = _root;
-        std::queue<Node*> q;
+    [[nodiscard]] double balanceness() const {
+        if (!_root) return 1;
+        unsigned closest = 0;
+        unsigned depth = 0;
+        Node *curr = _root;
+        std::queue<Node *> q;
         q.push(curr);
         while (!q.empty()) {
-            curr = q.front();
-            q.pop();
-            std::cout << curr->val << " ";
+            depth++;
+            size_t len = q.size();
+            while (len) {
+                curr = q.front();
+                q.pop();
+                if (!closest && !curr->left && !curr->right) {
+                    closest = depth;
+                }
+                if (curr->left) q.push(curr->left);
+                if (curr->right) q.push(curr->right);
+                len--;
+            }
         }
+        return static_cast<double>(closest) / depth;
     }
 
     [[nodiscard]] Node *predecessor(Node *node) const {
@@ -230,7 +228,7 @@ public:
             return node->parent;
         }
 
-        while ( node->parent && node == node->parent->left) {
+        while (node->parent && node == node->parent->left) {
             node = node->parent;
         }
         if (node->parent) {
@@ -238,6 +236,35 @@ public:
         }
 
         return nullptr;
+    }
+
+    void printBFS() {
+        if (!_root) return;
+        Node *curr = _root;
+        std::queue<Node *> q;
+        q.push(curr);
+        while (!q.empty()) {
+            curr = q.front();
+            q.pop();
+            std::cout << curr->val << " ";
+        }
+    }
+
+    void printPreOrder() const {
+        if (!_root) return;
+        std::stack<Node *> s;
+        Node *curr = _root;
+        while (curr || !s.empty()) {
+            while (curr) {
+                std::cout << curr->val << " ";
+                s.push(curr->right);
+                curr = curr->left;
+            }
+            if (!s.empty()) {
+                curr = s.top();
+                s.pop();
+            }
+        }
     }
 };
 
@@ -251,7 +278,7 @@ bool is_BST(Node *root, int min, int max) {
     return is_BST(root->left, min, root->val) && is_BST(root->right, root->val, max);
 }
 
-void batchConstructionByInserts(BinarySearchTree& tree, const std::vector<int>& values, int start, int end) {
+void batchConstructionByInserts(BinarySearchTree &tree, const std::vector<int> &values, int start, int end) {
     if (start > end) {
         return;
     }
@@ -264,26 +291,30 @@ void batchConstructionByInserts(BinarySearchTree& tree, const std::vector<int>& 
 
 int main() {
     BinarySearchTree tree(nullptr);
-    std::vector<int> v = {1, 2, 3, 4, 5, 50};
-    batchConstructionByInserts(tree, v, 0, v.size() - 1);
-    tree.print();
+    std::cout << tree.balanceness() << std::endl;
 
-    // tree.insert(5);
-    // tree.insert(7);
-    // tree.insert(3);
-    // tree.insert(9);
-    // tree.insert(6);
-    // tree.insert(1);
-    // tree.insert(4);
-    // tree.print();
+    tree.insert(5);
+    std::cout << tree.balanceness() << std::endl;
+    tree.insert(7);
+    std::cout << tree.balanceness() << std::endl;
+    tree.insert(3);
+    std::cout << tree.balanceness() << std::endl;
+    tree.insert(9);
+    std::cout << tree.balanceness() << std::endl;
+    tree.insert(6);
+    std::cout << tree.balanceness() << std::endl;
+    tree.insert(1);
+    std::cout << tree.balanceness() << std::endl;
+    tree.insert(4);
+    std::cout << tree.balanceness() << std::endl;
+    std::cout << "\n";
+    // tree.printPreOrder();
     // Node* x = tree.predecessor(tree.search(3));
     // if (x) {
     //     std::cout << x->val;
     // } else {
     //     std::cout << "null";
     // }
-
-
 
     // tree.mirror_recursive();
     // tree.print();
