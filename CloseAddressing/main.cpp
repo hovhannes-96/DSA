@@ -7,7 +7,7 @@ struct Hash
     size_t operator()(const std::string& str, size_t size) const {
         unsigned h = 0;
         for (size_t i = 0; i < str.size(); i++) {
-            h = h + str[i] * (i + 1) * (i + 1);
+            h = h + str[i] * (31 << i);
         }
         return h % size;
     }
