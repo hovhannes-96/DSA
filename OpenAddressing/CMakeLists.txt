@@ -3,4 +3,4 @@ project(OpenAddressing)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(OpenAddressing clustering.cpp)
+add_executable(OpenAddressing open_addressing.cpp)

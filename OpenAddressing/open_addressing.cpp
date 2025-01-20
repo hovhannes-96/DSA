@@ -1,34 +1,21 @@
 #include <iostream>
 #include <vector>
 #include <string>
-// #include <stdlib.h>
 #include <ctime>
-
-std::string generateRandomString() {
-    std::string randomString;
-    for (int i = 0; i < 2; ++i) {
-        // Generate a random character (a-z, A-Z, 0-9)
-        char randomChar = 'A' + std::rand() % 62; // Start with 'A'
-        if (randomChar > 'Z' && randomChar < 'a') randomChar += 6; // Adjust to skip non-alphabet characters
-        if (randomChar > 'z') randomChar -= 75; // Adjust for digits 0-9
-        randomString += randomChar;
-    }
-    return randomString;
-}
+#include "utils.h"
 
 struct Hash
 {
     size_t operator()(const std::string& str, size_t size) const {
         unsigned h = 0;
         for (size_t i = 0; i < str.size(); i++) {
-            h = h + str[i] * (i + 1) * (i + 1);
+            h = h + str[i] * (31 << i);
         }
         return h % size;
     }
 };
 
 class HashTable {
-    static constexpr size_t tableSize = 500;
     static constexpr double loadFactor = 0.5;
 
 private:
@@ -37,7 +24,7 @@ private:
     Hash hash;
 
 public:
-    HashTable() : table(tableSize, ""), size(0) {}
+    explicit HashTable(const size_t size) : table(size, ""), size(0) {}
     void printTable() const {
         for (const auto& e : table) {
             if (!e.empty()) {
@@ -47,7 +34,6 @@ public:
             }
         }
     }
-
     void printClusters() const {
         for (const auto& e : table) {
             if (!e.empty()) {
@@ -56,7 +42,21 @@ public:
                 std::cout << " ";
             }
         }
+        std::cout << "\n";
     }
+    void printRunsLens() {
+        for (size_t i = 0; i < table.size(); i++) {
+            size_t currRunLen = 0;
+            while (i < table.size() && !table[i].empty()) {
+                currRunLen++;
+                i++;
+            }
+            if (currRunLen) {
+                std::cout << currRunLen << " ";
+            }
+        }
+    }
+
     void insert(const std::string& str) {
         auto h = hash(str, table.size());
         auto attemptsCount = table.size();
@@ -77,17 +77,32 @@ public:
 };
 
 
-void testInsert() {
-    HashTable h;
-    for (int i = 0; i < 400; i++) {
+void showClusters() {
+    HashTable h(1000);
+    for (int i = 0; i < 250; i++) {
         auto s = generateRandomString();
         h.insert(s);
     }
     h.printClusters();
+    h.printRunsLens();
+
+    for (int i = 0; i < 250; i++) {
+        auto s = generateRandomString();
+        h.insert(s);
+    }
+    h.printClusters();
+    h.printRunsLens();
+
+    for (int i = 0; i < 250; i++) {
+        auto s = generateRandomString();
+        h.insert(s);
+    }
+    h.printClusters();
+    h.printRunsLens();
 }
 
 int main() {
     std::srand(std::time(nullptr));
-    testInsert();
+    showClusters();
     return 0;
 }
